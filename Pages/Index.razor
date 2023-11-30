@@ -1,0 +1,128 @@
+﻿@page "/"
+
+@inject IEmailService EmailService
+
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Schedule
+@using System.Timers
+
+<PageTitle>Index</PageTitle>
+
+<div class="control-container">
+    <div class="toast-control">
+        <SfToast @ref="ToastRef" CssClass="e-schedule-reminder e-toast-info" NewestOnTop="true" ShowCloseButton="true" Target=".e-schedule" Timeout="10000">
+            <ToastAnimationSettings>
+                <ToastShowAnimationSettings Effect="ToastEffect.SlideRightIn"></ToastShowAnimationSettings>
+                <ToastHideAnimationSettings Effect="ToastEffect.SlideRightOut"></ToastHideAnimationSettings>
+            </ToastAnimationSettings>
+            <ToastPosition X="Right" Y="Top"></ToastPosition>
+            <ToastTemplates>
+                <Template>
+                    <div class="e-toast-template e-toast-info">
+                        <div class="e-custom-toast">
+                            <div class="e-toast-icon e-icons e-schedule-meeting-icon"></div>
+                            <div class="e-avatar e-avatar-xsmall e-avatar-circle e-toast-avatar">
+                                <img class="image" src="/images/status/@(EventData.EmployeeId).png" alt="avatar" />
+                            </div>
+                        </div>
+                        <div class="e-toast-message">
+                            <div class="e-toast-title">@EventData.Subject</div>
+                            <div class="e-toast-content">@(EventData.StartTime.ToShortTimeString() + " - " + EventData.EndTime.ToShortTimeString())</div>
+                        </div>
+                    </div>
+                </Template>
+            </ToastTemplates>
+            <ToastEvents Created="OnToastCreated"></ToastEvents>
+        </SfToast>
+    </div>
+    <div class="schedule-control">
+        <SfSchedule @ref="ScheduleRef" TValue="EventModel" Height="500px">
+            <ScheduleGroup EnableCompactView="false" Resources="@GroupData"></ScheduleGroup>
+            <ScheduleResources>
+                <ScheduleResource TItem="ResourceModel" TValue="int[]" DataSource="@ResourceData" Field="EmployeeId" Title="Employee Name" Name="Employees" TextField="EmployeeName" IdField="EmployeeId" ColorField="EmployeeColor" AllowMultiple="true"></ScheduleResource>
+            </ScheduleResources>
+            <ScheduleEventSettings DataSource="@DataSource"></ScheduleEventSettings>
+        </SfSchedule>
+    </div>
+</div>
+
+<style>
+    .e-toast .e-schedule-reminder .e-toast-template {
+        display: flex;
+    }
+
+    .e-toast .e-schedule-reminder .e-custom-toast {
+        display: inline-grid;
+    }
+
+    .e-toast .e-schedule-reminder .e-schedule-meeting-icon::before {
+        content: "\e763";
+        font-size: 20px;
+    }
+
+    .e-toast .e-schedule-reminder .e-toast-avatar {
+        margin-top: 14px;
+    }
+</style>
+
+@code{
+    SfToast ToastRef;
+    SfSchedule<EventModel> ScheduleRef;
+
+    private class ResourceModel
+    {
+        public string EmployeeName { get; set; }
+        public int EmployeeId { get; set; }
+        public string EmployeeColor { get; set; }
+        public string EmployeeEmail { get; set; }
+    }
+
+    private EventModel EventData { get; set; }
+    private string[] GroupData { get; set; } = new string[] { "Employees" };
+    private List<ResourceModel> ResourceData { get; set; } = new List<ResourceModel> {
+        new ResourceModel { EmployeeId = 1, EmployeeName = "Employee 1", EmployeeColor = "#EA7A57", EmployeeEmail = "xxxxxxxxxxxxxxx@outlook.com"  },
+        new ResourceModel { EmployeeId = 2, EmployeeName = "Employee 2", EmployeeColor = "#357cd2", EmployeeEmail = "xxxxxxxxxxxxxxx@gmail.com"  },
+        new ResourceModel { EmployeeId = 3, EmployeeName = "Employee 3", EmployeeColor = "#7fa900", EmployeeEmail = "xxxxxxxxxxxxxxx@yahoo.com" }
+    };
+    private List<EventModel> DataSource = GenerateEvents();
+
+    private void OnToastCreated()
+    {
+        Timer timer = new Timer(60000);
+        timer.Elapsed += new ElapsedEventHandler(async (object sender, ElapsedEventArgs e) =>
+        {
+            List<EventModel> eventDatas = ScheduleRef.GetCurrentViewEvents();
+            int AlertBeforeMinutes = 5;
+            DateTime CurrentTime = DateFormat(DateTime.Now);
+            foreach (EventModel eventData in eventDatas)
+            {
+                DateTime StartTime = DateFormat(eventData.StartTime);
+                if (DateTime.Compare(CurrentTime, StartTime.AddMinutes(-AlertBeforeMinutes)) == 0)
+                {
+                    EventData = eventData;
+                    await InvokeAsync(async () => await ToastRef.ShowAsync());
+                }
+            }
+        });
+        timer.Enabled = true;
+    }
+
+    private DateTime DateFormat(DateTime date)
+    {
+        return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0);
+    }
+
+    private static List<EventModel> GenerateEvents()
+    {
+        DateTime date1 = DateTime.Now;
+        DateTime startDate = new DateTime(date1.Year, date1.Month, date1.Day, date1.Hour, date1.Minute, 0).AddMinutes(6);
+        DateTime endDate = new DateTime(startDate.Ticks).AddHours(2);
+        List<EventModel> collections = new List<EventModel>() {
+            new EventModel { Id = 1, Subject = "Testing", StartTime = startDate, EndTime = endDate, EmployeeId = 1 },
+            new EventModel { Id = 2, Subject = "Meeting", StartTime = startDate, EndTime = endDate, EmployeeId = 2 },
+            new EventModel { Id = 3, Subject = "Conference", StartTime = startDate, EndTime = endDate, EmployeeId = 3 },
+        };
+        return collections;
+    }
+
+}
