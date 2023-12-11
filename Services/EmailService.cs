@@ -22,10 +22,9 @@ public class EmailService : IEmailService
     public async Task<string> SendEmailAsync(List<string> ToEmailName, string Subject, EventModel Data)
     {
         _mailResponse = string.Empty;
-
+        Console.WriteLine($"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{_mailConfig.Host} {_mailConfig.Port} {_mailConfig.Username} {_mailConfig.Password}");
         using (SmtpClient smtpClient = new SmtpClient(_mailConfig.Host, _mailConfig.Port))
         {
-            smtpClient.UseDefaultCredentials = true;
             smtpClient.Credentials = new NetworkCredential(_mailConfig.Username, _mailConfig.Password);
             smtpClient.EnableSsl = true;
             smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
@@ -51,7 +50,7 @@ public class EmailService : IEmailService
 
             await smtpClient.SendMailAsync(message);
         }
-
+        System.Console.WriteLine($"{_mailResponse}");
         return _mailResponse;
     }
 

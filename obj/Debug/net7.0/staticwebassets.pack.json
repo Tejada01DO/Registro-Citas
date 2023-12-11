@@ -5,6 +5,10 @@
       "PackagePath": "staticwebassets\\RegistroCitas.bundle.scp.css"
     },
     {
+      "Id": "C:\\RegistroCitas\\RegistroCitas\\wwwroot\\Email_Template.html",
+      "PackagePath": "staticwebassets\\Email_Template.html"
+    },
+    {
       "Id": "C:\\RegistroCitas\\RegistroCitas\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
       "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
     },
