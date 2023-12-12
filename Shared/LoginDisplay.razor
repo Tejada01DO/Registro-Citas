@@ -6,7 +6,16 @@
         </form>
     </Authorized>
     <NotAuthorized>
-        <a href="Identity/Account/Register">Register</a>
-        <a href="Identity/Account/Login">Log in</a>
+        <div class="nav-item dropdown mr-auto">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Menú
+            </a>
+            <div class="dropdown-menu text-left" aria-labelledby="navbarDropdown text-left">
+                <a class="dropdown-item text-left" href="/Products">Productos</a>
+                <a class="dropdown-item" href="#">Agendar Citas</a>
+            </div>
+        </div>
+        <a href="Identity/Account/Register" class="nav-link">Register</a>
+        <a href="Identity/Account/Login" class="nav-link">Log in</a>
     </NotAuthorized>
 </AuthorizeView>
